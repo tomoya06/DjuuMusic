@@ -91,19 +91,20 @@ struct LoginFlowView: View {
         HStack(spacing: 10) {
             TextField("验证码", text: $smsCode)
                 .keyboardType(.numberPad)
+            // 不用 glassEffect：嵌在外层输入框的玻璃内会产生文字叠影，改实底胶囊。
             Button {
                 guard validatePhone() else { return }
                 showCaptcha = true
             } label: {
                 Text(countdown > 0 ? "\(countdown)秒" : "获取验证码")
                     .font(.footnote.weight(.medium))
+                    .foregroundStyle(countdown > 0 ? Color.secondary : Color.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
+                    .background(countdown > 0 ? Color.gray.opacity(0.35) : Color.accentColor,
+                                in: .capsule)
             }
-            .glassEffect(countdown > 0
-                         ? .regular
-                         : .regular.tint(.accentColor).interactive(),
-                         in: .capsule)
+            .buttonStyle(.plain)
             .disabled(countdown > 0)
         }
         .padding(.leading, 14)
