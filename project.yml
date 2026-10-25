@@ -1,0 +1,48 @@
+name: DjuuMusic
+options:
+  bundleIdPrefix: com.djuu
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    CODE_SIGN_STYLE: Automatic
+    TARGETED_DEVICE_FAMILY: "1"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SUPPORTS_MACCATALYST: "NO"
+targets:
+  DjuuMusic:
+    type: application
+    platform: iOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: DjuuMusic
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.djuu.music
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    info:
+      path: DjuuMusic/Info.plist
+      properties:
+        CFBundleDisplayName: DJ呦呦
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIBackgroundModes:
+          - audio
+        ITSAppUsesNonExemptEncryption: false
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            CPTemplateApplicationSceneSessionRoleApplication:
+              - UISceneConfigurationName: CarPlay
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).CarPlaySceneDelegate
+    entitlements:
+      path: DjuuMusic/DjuuMusic.entitlements
+      properties:
+        com.apple.developer.carplay-audio: true
