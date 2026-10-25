@@ -117,7 +117,9 @@ final class PlayerModel {
 
     func seek(to second: Double) {
         let time = CMTime(seconds: max(0, min(second, duration)), preferredTimescale: 600)
-        player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
+        // seek 必须打在 currentItem 上：打在 AVPlayer 上时，replaceCurrentItem
+        // 会把未完成的 seek 转移给新 item，导致下一首从上一首的进度开播。
+        player.currentItem?.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
         elapsed = time.seconds
         updateNowPlaying()
     }
@@ -235,7 +237,9 @@ final class PlayerModel {
             queue: .main
         ) { [weak self] time in
             MainActor.assumeIsolated {
-                guard let self else { return }
+                guard let self, !self.isLoading else { return }
+                // isLoading 期间旧 item 还挂在 player 上，此处读到的 elapsed/duration
+                // 是旧曲目的，写回会覆盖 resolveAndPlay 刚清零的进度。
                 self.elapsed = time.seconds.isFinite ? time.seconds : 0
                 if let item = self.player.currentItem, item.duration.seconds.isFinite, item.duration.seconds > 0 {
                     self.duration = item.duration.seconds
