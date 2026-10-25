@@ -28,8 +28,11 @@ struct RootView: View {
         .djuuBottomAccessory(isEnabled: player.hasCurrent && !player.showFullScreen) {
             MiniPlayerBar()
         }
-        .fullScreenCover(isPresented: $player.showFullScreen) {
+        // 播放页用大档位 sheet 呈现：原生支持下滑收起（抽屉式），带拖拽指示条。
+        .sheet(isPresented: $player.showFullScreen) {
             NowPlayingView()
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
     }
 }
