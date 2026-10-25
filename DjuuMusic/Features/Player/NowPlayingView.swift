@@ -5,6 +5,7 @@ struct NowPlayingView: View {
 
     @State private var scrubValue: Double?
     @State private var showQueue = false
+    @State private var showCollect = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -23,6 +24,9 @@ struct NowPlayingView: View {
             QueueSheet()
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showCollect) {
+            CollectPickerSheet()
         }
     }
 
@@ -64,6 +68,14 @@ struct NowPlayingView: View {
         .frame(maxWidth: 320)
         .aspectRatio(1, contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: 28))
+        .overlay {
+            // 待播放资源加载中：封面压暗 + 转圈。
+            if player.isLoading {
+                RoundedRectangle(cornerRadius: 28)
+                    .fill(.black.opacity(0.4))
+                    .overlay(ProgressView().controlSize(.large).tint(.white))
+            }
+        }
         .shadow(color: .black.opacity(0.4), radius: 24, y: 12)
         .padding(.horizontal, 28)
         .padding(.top, 28)
@@ -149,13 +161,17 @@ struct NowPlayingView: View {
                 }
                 .glassEffect(.regular.interactive(), in: .circle)
 
-                // 平衡布局的占位（与模式按钮对称）
-                Label(player.mode.label, systemImage: player.mode.iconName)
-                    .labelStyle(.iconOnly)
-                    .font(.body)
-                    .frame(width: 48, height: 48)
-                    .opacity(0.001)
-                    .accessibilityHidden(true)
+                // 收藏：H5 无「已收藏」状态，仅作操作入口，选中收藏盒后由服务端判断。
+                Button {
+                    showCollect = true
+                } label: {
+                    Image(systemName: "star")
+                        .font(.body)
+                        .frame(width: 48, height: 48)
+                }
+                .glassEffect(.regular.interactive(), in: .circle)
+                .disabled(player.currentTrack == nil)
+                .opacity(player.currentTrack == nil ? 0.4 : 1)
             }
         }
         .padding(.top, 24)

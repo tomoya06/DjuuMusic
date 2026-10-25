@@ -13,6 +13,13 @@ struct MeView: View {
             List {
                 if let profile {
                     profileSection(profile)
+                    Section {
+                        NavigationLink {
+                            FavoritesView()
+                        } label: {
+                            Label("我的收藏", systemImage: "star")
+                        }
+                    }
                     historySection
                     Button(role: .destructive) {
                         confirmLogout = true

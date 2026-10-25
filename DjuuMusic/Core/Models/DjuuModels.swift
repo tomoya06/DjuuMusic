@@ -88,6 +88,12 @@ struct TrackPage {
     var hasMore: Bool
 }
 
+/// 收藏盒（H5「音乐盒」，/user/collect 接口返回）。
+struct CollectBox: Decodable, Identifiable, Hashable {
+    let id: Int
+    let title: String
+}
+
 struct HomeSection: Identifiable, Hashable {
     let id: Int
     let title: String

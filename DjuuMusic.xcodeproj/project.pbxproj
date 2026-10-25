@@ -20,6 +20,7 @@
 		AC356871E491382FE8A3F71E /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36633C5D566EC20365996CD1 /* NowPlayingView.swift */; };
 		B019BE0060AC9CD40225E8A7 /* CarPlaySceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70A747EEB853E2FC3091D289 /* CarPlaySceneDelegate.swift */; };
 		B34F7C75AFF32AAA109D0017 /* DjuuMusicApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B00C981EBE1B7DDD88C2E06 /* DjuuMusicApp.swift */; };
+		B4E8AE4F73F5AF94575CAF4E /* Collect.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9F2E24AD8F076F7D01FFD3D /* Collect.swift */; };
 		BAB2603D5161530D7FC65607 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3493747DC8FB04BCF4240A0 /* SearchView.swift */; };
 		BAD19A830A61BD8F390D01C0 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A49D745CD396FCDE7898B1E /* HomeView.swift */; };
 		BE6D007DFE4AB4A4C8890B8D /* PlayerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771ADB060F0F9060F26908EA /* PlayerModel.swift */; };
@@ -53,6 +54,7 @@
 		EC66A243CA3608697010AB0D /* MiniPlayerBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerBar.swift; sourceTree = "<group>"; };
 		EEFA66AC2566F0E8259273C2 /* DjuuHTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DjuuHTMLParser.swift; sourceTree = "<group>"; };
 		F3493747DC8FB04BCF4240A0 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		F9F2E24AD8F076F7D01FFD3D /* Collect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collect.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -90,6 +92,7 @@
 		4A1DEB4D76AAF3818A18A081 /* Me */ = {
 			isa = PBXGroup;
 			children = (
+				F9F2E24AD8F076F7D01FFD3D /* Collect.swift */,
 				6BEA0AD6CEAB1F9F79F9EC34 /* LoginFlowView.swift */,
 				DA2FCA780F49D555B10170A9 /* MeView.swift */,
 				BD7426B1AC5605C324536F88 /* SliderCaptchaView.swift */,
@@ -277,6 +280,7 @@
 			files = (
 				B019BE0060AC9CD40225E8A7 /* CarPlaySceneDelegate.swift in Sources */,
 				193377F9B6491CF6FE90C93C /* CategoryData.swift in Sources */,
+				B4E8AE4F73F5AF94575CAF4E /* Collect.swift in Sources */,
 				8ED0D3E37B3981E0898BF6D4 /* DjuuAPI.swift in Sources */,
 				25334C083276B4BF8E44DF86 /* DjuuClient.swift in Sources */,
 				F708D27231BF51E3738B45E1 /* DjuuHTMLParser.swift in Sources */,

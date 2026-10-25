@@ -123,4 +123,43 @@ enum DjuuAPI {
         }
         return profile
     }
+
+    // MARK: - Collect（收藏盒，对应 H5 /user/collect?action=...）
+
+    /// H5 约定：会话失效返回 code=109。
+    static let notLoggedInCode = 109
+
+    private struct EmptyData: Decodable {}
+
+    /// 收藏盒列表（showcollect → data:[{id,title}]）。
+    static func collectBoxes() async throws -> [CollectBox] {
+        let payload: Envelope<[CollectBox]> = try await DjuuClient.shared.postForm(
+            path: "user/collect", query: ["action": "showcollect"], fields: [:])
+        guard payload.code == 0 else {
+            throw DjuuError.server(code: payload.code, message: payload.msg ?? "收藏加载失败")
+        }
+        return payload.data ?? []
+    }
+
+    /// 新建收藏盒（addcollect {boxname}）。
+    static func createCollectBox(name: String) async throws -> String {
+        let payload: Envelope<EmptyData> = try await DjuuClient.shared.postForm(
+            path: "user/collect", query: ["action": "addcollect"], fields: ["boxname": name])
+        guard payload.code == 0 else {
+            throw DjuuError.server(code: payload.code, message: payload.msg ?? "创建失败")
+        }
+        return payload.msg ?? "创建成功"
+    }
+
+    /// 添加曲目到收藏盒（addmusic {boxid, musicid}）。
+    /// H5 前端没有「已收藏」状态，是否重复收藏由服务端在此步返回错误信息。
+    static func addToCollect(boxID: Int, musicID: Int) async throws -> String {
+        let payload: Envelope<EmptyData> = try await DjuuClient.shared.postForm(
+            path: "user/collect", query: ["action": "addmusic"],
+            fields: ["boxid": String(boxID), "musicid": String(musicID)])
+        guard payload.code == 0 else {
+            throw DjuuError.server(code: payload.code, message: payload.msg ?? "收藏失败")
+        }
+        return payload.msg ?? "收藏成功"
+    }
 }

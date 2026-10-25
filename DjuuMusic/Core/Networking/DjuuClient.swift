@@ -37,13 +37,20 @@ final class DjuuClient {
         return text
     }
 
-    func postForm<T: Decodable>(path: String, fields: [String: String]) async throws -> T {
-        let data = try await postFormRaw(path: path, fields: fields)
+    func postForm<T: Decodable>(path: String, query: [String: String] = [:],
+                                fields: [String: String]) async throws -> T {
+        let data = try await postFormRaw(path: path, query: query, fields: fields)
         return try JSONDecoder().decode(T.self, from: data)
     }
 
-    func postFormRaw(path: String, fields: [String: String]) async throws -> Data {
-        var request = URLRequest(url: Self.baseURL.appendingPathComponent(path))
+    func postFormRaw(path: String, query: [String: String] = [:],
+                     fields: [String: String]) async throws -> Data {
+        var comps = URLComponents(url: Self.baseURL.appendingPathComponent(path),
+                                  resolvingAgainstBaseURL: false)!
+        if !query.isEmpty {
+            comps.queryItems = query.map { URLQueryItem(name: $0.key, value: $0.value) }.sorted { $0.name < $1.name }
+        }
+        var request = URLRequest(url: comps.url!)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded; charset=UTF-8", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json, text/javascript, */*; q=0.01", forHTTPHeaderField: "Accept")

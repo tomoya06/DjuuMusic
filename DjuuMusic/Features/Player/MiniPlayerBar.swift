@@ -83,11 +83,26 @@ struct MiniPlayerBar: View {
             }
             .frame(width: 46, height: 46)
             .clipShape(Circle())
+            .overlay {
+                // 待播放资源加载中：封面压暗 + 转圈。
+                if player.isLoading {
+                    Circle()
+                        .fill(.black.opacity(0.45))
+                        .overlay(ProgressView().tint(.white))
+                }
+            }
         } else {
             Image(systemName: "music.note")
                 .font(.title3)
                 .frame(width: 46, height: 46)
                 .background(.quaternary, in: Circle())
+                .overlay {
+                    if player.isLoading {
+                        Circle()
+                            .fill(.black.opacity(0.45))
+                            .overlay(ProgressView().tint(.white))
+                    }
+                }
         }
     }
 }
