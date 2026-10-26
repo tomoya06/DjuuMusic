@@ -15,8 +15,9 @@ struct SearchView: View {
     @State private var page = 1
     @State private var hasMore = false
     @State private var isLoading = false
+    @State private var isPaginating = false
     @State private var loadError: String?
-    @State private var listPosition = ScrollPosition()
+    @State private var listID = UUID()
     @FocusState private var fieldFocused: Bool
 
     private var categories: [(Int, String)] {
@@ -134,12 +135,12 @@ struct SearchView: View {
                                  onPlay: { player.play(track, in: tracks) },
                                  onPlayNext: { player.playNext(track) })
                             .onAppear {
-                                if track.id == tracks.last?.id && hasMore && !isLoading {
+                                if track.id == tracks.last?.id && hasMore && !isLoading && !isPaginating {
                                     Task { await loadMore() }
                                 }
                             }
                     }
-                    if isLoading { ProgressView().padding(.vertical, 12) }
+                    if isPaginating { ProgressView().padding(.vertical, 12) }
                     if !hasMore {
                         Text("没有更多了")
                             .font(.footnote)
@@ -149,8 +150,12 @@ struct SearchView: View {
                 }
                 .padding(.horizontal, 12)
             }
-            .refreshable { await reload() }
-            .scrollPosition($listPosition)
+            // 非结构化 Task 包一层：ScrollView 的 refreshable 任务会因手势结束或
+            // 刷新期间的内容变动被取消，取消会连带掐断 URLSession 请求。
+            .refreshable { await Task { await reload() }.value }
+            // 重载成功换 identity 重建 ScrollView 回到顶部；scrollPosition 绑定
+            // 会干扰 refreshable（v1.0.4 下拉必 cancelled 的帮凶），不能用。
+            .id(listID)
         }
     }
 
@@ -161,14 +166,16 @@ struct SearchView: View {
         guard !query.isEmpty else { return }
         searchedKeyword = query
         page = 1
-        hasMore = true
         isLoading = true
         loadError = nil
         do {
             let result = try await DjuuAPI.search(keyword: query, cid: cid, sort: sort, page: 1)
             tracks = result.tracks
             hasMore = result.hasMore
-            listPosition.scrollTo(edge: .top)
+            listID = UUID()
+        } catch is CancellationError {
+            // 下拉后立刻滑走等场景：保留旧列表，静默结束
+        } catch let error as URLError where error.code == .cancelled {
         } catch {
             loadError = error.localizedDescription
             tracks = []
@@ -178,8 +185,8 @@ struct SearchView: View {
     }
 
     private func loadMore() async {
-        guard !isLoading, hasMore else { return }
-        isLoading = true
+        guard !isPaginating, hasMore else { return }
+        isPaginating = true
         do {
             let result = try await DjuuAPI.search(keyword: searchedKeyword, cid: cid, sort: sort, page: page + 1)
             let existing = Set(tracks.map(\.id))
@@ -189,6 +196,6 @@ struct SearchView: View {
         } catch {
             hasMore = false
         }
-        isLoading = false
+        isPaginating = false
     }
 }
