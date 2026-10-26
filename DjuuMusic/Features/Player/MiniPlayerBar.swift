@@ -67,10 +67,9 @@ struct MiniPlayerBar: View {
         .overlay(alignment: .top) {
             GeometryReader { proxy in
                 ProgressView(value: player.duration > 0 ? player.elapsed / player.duration : 0)
-                    .progressViewStyle(.linear)
-                    .tint(.accentColor)
+                    .progressViewStyle(MiniBarProgressStyle())
                     .frame(width: proxy.size.width - 32)
-                    .offset(y: 2)
+                    .offset(y: 1)
             }
             .allowsHitTesting(false)
         }
@@ -80,19 +79,36 @@ struct MiniPlayerBar: View {
     private var artwork: some View {
         let theme = TrackTheme.classify(player.currentTrack?.title)
         ZStack {
-            RoundedRectangle(cornerRadius: 12)
+            Circle()
                 .fill(LinearGradient(colors: theme.colors, startPoint: .topLeading, endPoint: .bottomTrailing))
-            ThemePattern(symbol: theme.symbol, symbolSize: 18, opacity: 0.28)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+            ThemePattern(symbol: theme.symbol, symbolSize: 16, opacity: 0.28)
+                .clipShape(Circle())
         }
-        .frame(width: 46, height: 46)
+        // 与右侧两个 40pt 圆形播控按钮同尺寸，形成等大的圆点节奏。
+        .frame(width: 40, height: 40)
         .overlay {
             // 待播放资源加载中：压暗 + 转圈。
             if player.isLoading {
-                RoundedRectangle(cornerRadius: 12)
+                Circle()
                     .fill(.black.opacity(0.45))
                     .overlay(ProgressView().tint(.white))
             }
         }
+    }
+}
+
+/// 自绘加粗进度条：系统 .linear 样式固定 4pt 高，无法调粗。
+private struct MiniBarProgressStyle: ProgressViewStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        let fraction = min(max(configuration.fractionCompleted ?? 0, 0), 1)
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule().fill(.quaternary)
+                Capsule()
+                    .fill(Color.accentColor)
+                    .frame(width: fraction * proxy.size.width)
+            }
+        }
+        .frame(height: 6)
     }
 }
