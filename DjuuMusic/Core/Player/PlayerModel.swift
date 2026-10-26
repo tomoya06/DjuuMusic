@@ -42,6 +42,8 @@ final class PlayerModel {
     private var interruptionObserver: NSObjectProtocol?
     private var routeObserver: NSObjectProtocol?
     private let artworkCache = NSCache<NSString, UIImage>()
+    private var lastPublishedDuration: Double = 0
+    private var lastPublishedRate: Double = 0
 
     private(set) var queue: [Track] = []
     private(set) var currentIndex: Int?
@@ -246,6 +248,7 @@ final class PlayerModel {
                     self.duration = item.duration.seconds
                 }
                 self.syncPlaybackState()
+                self.refreshNowPlayingIfChanged()
             }
         }
 
@@ -338,12 +341,26 @@ final class PlayerModel {
         }
         info[MPMediaItemPropertyPlaybackDuration] = duration
         info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = elapsed
-        info[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? player.rate : 0
+        // 用 player.rate 实时值：resume() 后 isPlaying 可能还没被观察器置回，
+        // 若仍发布 0，系统面板的进度会停在原地。
+        let rate: Double = player.rate > 0 ? Double(player.rate) : 0
+        info[MPNowPlayingInfoPropertyPlaybackRate] = rate
         // 锁屏/控制中心/灵动岛共用此 artwork：主题渐变+花纹，与 app 内去封面改版一致。
         if let artwork = themedArtwork(for: TrackTheme.classify(currentTrack?.title)) {
             info[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: artwork.size) { _ in artwork }
         }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+        lastPublishedDuration = duration
+        lastPublishedRate = rate
+    }
+
+    /// 系统面板进度由 elapsed+rate 外推：只在总时长首次加载、或播放状态翻转时
+    /// 重发布，避免每 0.5s 重置 nowPlayingInfo 造成进度抖动。
+    private func refreshNowPlayingIfChanged() {
+        let rate: Double = player.rate > 0 ? Double(player.rate) : 0
+        if (duration > 0 && duration != lastPublishedDuration) || rate != lastPublishedRate {
+            updateNowPlaying()
+        }
     }
 
     /// 渲染主题徽章图（与 minibar 同款视觉），按主题缓存，避免 elapsed 刷新时重复渲染。
