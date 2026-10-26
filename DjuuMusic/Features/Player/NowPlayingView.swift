@@ -251,17 +251,25 @@ struct QueueSheet: View {
 
 // MARK: - 曲目分类主题
 
-/// 从曲目标题关键词判别类别（站点标题自带风格标签，如「全国语 Electro 音乐…串烧」），
+/// 从曲目标题关键词判别类别，覆盖 m 站曲库抽屉的全部子类目
+/// （独家舞曲/串烧/Remix/HOUSE/霓虹风格/Mashup/DISCO，关键词取自子类目名），
 /// 每类提供主题色渐变 + 花纹符号，替代大封面的视觉主体。
 enum TrackTheme {
-    case medley      // 串烧
-    case electro     // Electro
-    case funkyHouse  // FunkyHouse
-    case car         // 车载
+    case medley      // 串烧（迪高/慢摇/慢歌串烧）
+    case electro     // Electro / Y鼓
+    case funkyHouse  // FunkyHouse / 咚鼓
+    case progHouse   // ProgHouse / 福鼓
+    case vina        // 越南鼓 Vina/Lak
+    case car         // 车载版
     case ktv
     case slowRock    // 慢摇
     case dubstep
     case douyin      // 抖音热歌
+    case disco       // DISCO / Nudisco / Club
+    case bounce      // Bounce / 棒丝 / 弹跳
+    case neon        // 霓虹风格: HipHop/Rap/Trap/RnB/Reggae/DanceHall/BreakBeat/Rock
+    case mashup      // Mashup / PartyBreak / Remix / E.D.M
+    case techno      // Techno / Trance
     case generic
 
     static func classify(_ title: String?) -> TrackTheme {
@@ -269,11 +277,19 @@ enum TrackTheme {
         // 场景标签比风格标签更具体，优先匹配
         if title.contains("车载") { return .car }
         if title.contains("KTV") || title.contains("ktv") { return .ktv }
-        if title.contains("Dubstep") || title.contains("dubstep") { return .dubstep }
-        if title.contains("FunkyHouse") || title.contains("Funky") { return .funkyHouse }
-        if title.contains("Electro") || title.contains("electro") { return .electro }
-        if title.contains("慢摇") { return .slowRock }
         if title.contains("抖音") { return .douyin }
+        // 风格标签：先具体复合词，后宽泛词；Remix 后缀排在各风格之后
+        if title.contains("Dubstep") || title.contains("dubstep") { return .dubstep }
+        if title.lowercased().contains("bounce") || title.contains("棒丝") || title.contains("弹跳") { return .bounce }
+        if title.contains("FunkyHouse") || title.contains("Funky") || title.contains("咚鼓") { return .funkyHouse }
+        if title.contains("ProgHouse") || title.contains("Prog") || title.contains("福鼓") { return .progHouse }
+        if title.contains("Electro") || title.contains("electro") || title.contains("Y鼓") { return .electro }
+        if title.contains("越南鼓") || title.lowercased().contains("vina") || title.lowercased().contains("lak") { return .vina }
+        if title.lowercased().contains("disco") || title.lowercased().contains("club") { return .disco }
+        if title.contains("HipHop") || title.contains("Hip-Hop") || title.contains("Trap") || title.contains("RnB") || title.contains("R&B") || title.contains("Reggae") || title.contains("DanceHall") || title.contains("BreakBeat") || title.contains("Breakbeat") || title.contains("Rap") || title.contains("Rock") || title.contains("摇滚") || title.contains("蓝调") { return .neon }
+        if title.contains("Techno") || title.contains("Trance") { return .techno }
+        if title.contains("Mashup") || title.contains("PartyBreak") || title.contains("E.D.M") || title.lowercased().contains("edm") || title.contains("Remix") || title.contains("remix") { return .mashup }
+        if title.contains("慢摇") { return .slowRock }
         if title.contains("串烧") { return .medley }
         return .generic
     }
@@ -283,11 +299,18 @@ enum TrackTheme {
         case .medley: return "DJ 串烧"
         case .electro: return "Electro 舞曲"
         case .funkyHouse: return "FunkyHouse"
+        case .progHouse: return "ProgHouse"
+        case .vina: return "越南鼓"
         case .car: return "车载专用"
         case .ktv: return "KTV 精选"
         case .slowRock: return "慢摇"
         case .dubstep: return "Dubstep"
         case .douyin: return "抖音热歌"
+        case .disco: return "DISCO"
+        case .bounce: return "弹跳 Bounce"
+        case .neon: return "霓虹风格"
+        case .mashup: return "Mashup/Remix"
+        case .techno: return "Techno/Trance"
         case .generic: return "DJ 呦呦"
         }
     }
@@ -297,11 +320,18 @@ enum TrackTheme {
         case .medley: return "music.note.list"
         case .electro: return "bolt.fill"
         case .funkyHouse: return "house.fill"
+        case .progHouse: return "water.waves"
+        case .vina: return "metronome"
         case .car: return "car.fill"
         case .ktv: return "mic.fill"
         case .slowRock: return "waveform"
         case .dubstep: return "waveform.path"
         case .douyin: return "music.note"
+        case .disco: return "disc"
+        case .bounce: return "arrow.up.arrow.down"
+        case .neon: return "headphones"
+        case .mashup: return "shuffle"
+        case .techno: return "gauge"
         case .generic: return "music.note"
         }
     }
@@ -311,11 +341,18 @@ enum TrackTheme {
         case .medley: return [Color(hex: 0xE34A85), Color(hex: 0x6E2B77)]
         case .electro: return [Color(hex: 0x2FA7E8), Color(hex: 0x2547B8)]
         case .funkyHouse: return [Color(hex: 0xF2A93B), Color(hex: 0xC25517)]
+        case .progHouse: return [Color(hex: 0x6E7BF2), Color(hex: 0x262B6B)]
+        case .vina: return [Color(hex: 0x24A85F), Color(hex: 0x08472A)]
         case .car: return [Color(hex: 0xE4484F), Color(hex: 0x7C1D2B)]
         case .ktv: return [Color(hex: 0x9B64F2), Color(hex: 0x4B2492)]
         case .slowRock: return [Color(hex: 0x27B8A4), Color(hex: 0x0E6E63)]
         case .dubstep: return [Color(hex: 0x93C83D), Color(hex: 0x3E641C)]
         case .douyin: return [Color(hex: 0x25C4D8), Color(hex: 0xC22B4B)]
+        case .disco: return [Color(hex: 0xFF9A5A), Color(hex: 0xB31330)]
+        case .bounce: return [Color(hex: 0xF7D24B), Color(hex: 0x8F6A00)]
+        case .neon: return [Color(hex: 0xFF3CAC), Color(hex: 0x784BA0)]
+        case .mashup: return [Color(hex: 0x3AC2E0), Color(hex: 0x1B6E86)]
+        case .techno: return [Color(hex: 0x9BB0D0), Color(hex: 0x31415E)]
         case .generic: return [Color(hex: 0x5C6B84), Color(hex: 0x232B3A)]
         }
     }
