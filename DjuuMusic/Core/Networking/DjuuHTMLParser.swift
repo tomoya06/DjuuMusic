@@ -13,7 +13,8 @@ enum DjuuHTMLParser {
         for chunk in chunks.dropFirst() {
             guard let id = Self.firstMatch("(?<=data-bs-id=\")\\d+", chunk).flatMap(Int.init) else { continue }
             guard !seen.contains(id) else { continue }
-            guard let title = Self.firstMatch("(?<=<span>)[^<]+", chunk) else { continue }
+            // 标题 span 可能带 class（收藏盒模板是 <span class="text-truncate">），不能假定无属性
+            guard let title = Self.capturedGroups(pattern: "<span[^>]*>([^<]+)", in: chunk).first?.first else { continue }
             seen.insert(id)
             let hit = Self.firstMatch("(?<=HIT:)[0-9.]+℃?", chunk)
             let date = Self.firstMatch("(?<=TIME:)[0-9/]+", chunk)

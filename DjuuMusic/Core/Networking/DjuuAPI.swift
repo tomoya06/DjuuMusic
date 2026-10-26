@@ -141,6 +141,18 @@ enum DjuuAPI {
         return payload.data ?? []
     }
 
+    /// 收藏盒内曲目（getlist → 与列表页同模板的 HTML 片段，一次返回全部）。
+    static func collectTracks(boxID: Int) async throws -> [Track] {
+        let html = try await DjuuClient.shared.getHTML(
+            path: "user/collect",
+            query: ["action": "getlist", "id": String(boxID), "ajax": "1"])
+        guard html.contains("<!--musiclist-->") else {
+            // 会话失效时被重定向到登录页，页面里没有列表片段。
+            throw DjuuError.server(code: notLoggedInCode, message: "请登录DJ呦呦")
+        }
+        return DjuuHTMLParser.parseTrackItems(fragment(of: html))
+    }
+
     /// 新建收藏盒（addcollect {boxname}）。
     static func createCollectBox(name: String) async throws -> String {
         let payload: Envelope<EmptyData> = try await DjuuClient.shared.postForm(

@@ -5,6 +5,7 @@ struct MeView: View {
 
     @State private var profile: UserProfile?
     @State private var history: [Track] = []
+    @State private var collectBoxes: [CollectBox] = []
     @State private var showLogin = false
     @State private var confirmLogout = false
 
@@ -13,13 +14,7 @@ struct MeView: View {
             List {
                 if let profile {
                     profileSection(profile)
-                    Section {
-                        NavigationLink {
-                            FavoritesView()
-                        } label: {
-                            Label("我的收藏", systemImage: "star")
-                        }
-                    }
+                    collectSection
                     historySection
                     Button(role: .destructive) {
                         confirmLogout = true
@@ -37,9 +32,11 @@ struct MeView: View {
                 profile = LocalStore.profile
                 history = LocalStore.history
             }
+            .task { await loadCollectBoxes() }
             .sheet(isPresented: $showLogin) {
                 LoginFlowView {
                     profile = LocalStore.profile
+                    Task { await loadCollectBoxes() }
                 }
             }
             .confirmationDialog("退出后收藏与服务端会话将失效，确定退出？",
@@ -47,12 +44,75 @@ struct MeView: View {
                 Button("退出登录", role: .destructive) {
                     LocalStore.logout()
                     profile = nil
+                    collectBoxes = []
                 }
             }
         }
     }
 
     // MARK: - Sections
+
+    /// 收藏歌单直接平铺在个人中心，点击直达盒内容，少一次跳转。
+    private var collectSection: some View {
+        Section("我的收藏歌单") {
+            if collectBoxes.isEmpty {
+                NavigationLink {
+                    FavoritesView()
+                } label: {
+                    Label("我的收藏", systemImage: "star")
+                }
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(collectBoxes) { box in
+                            NavigationLink {
+                                CollectBoxDetailView(box: box)
+                            } label: {
+                                boxCard(icon: "folder.fill", title: box.title)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        NavigationLink {
+                            FavoritesView()
+                        } label: {
+                            boxCard(icon: "folder.badge.plus", title: "全部收藏盒")
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(.vertical, 4)
+                    .padding(.horizontal, 2)
+                }
+            }
+        }
+    }
+
+    private func boxCard(icon: String, title: String) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundStyle(.white)
+                .frame(width: 44, height: 44)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(LinearGradient(colors: [Color.accentColor.opacity(0.9), Color.accentColor.opacity(0.55)],
+                                             startPoint: .topLeading, endPoint: .bottomTrailing)))
+            Text(title)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+        }
+        .padding(10)
+        .frame(width: 112, alignment: .leading)
+        .background(.quaternary.opacity(0.6), in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    private func loadCollectBoxes() async {
+        guard LocalStore.profile != nil else {
+            collectBoxes = []
+            return
+        }
+        collectBoxes = (try? await DjuuAPI.collectBoxes()) ?? []
+    }
 
     private func profileSection(_ profile: UserProfile) -> some View {
         Section {
