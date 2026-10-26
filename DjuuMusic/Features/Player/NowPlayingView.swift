@@ -10,7 +10,7 @@ struct NowPlayingView: View {
     var body: some View {
         VStack(spacing: 0) {
             NowPlayingHeader(showQueue: $showQueue)
-            artwork
+            themePanel
             info
             progress
             controls
@@ -33,52 +33,72 @@ struct NowPlayingView: View {
     // MARK: - Pieces
 
     private var background: some View {
-        Group {
-            if let cover = player.currentTrack?.cover ?? player.current?.img,
-               let url = URL(string: cover) {
-                AsyncImage(url: url) { image in
-                    image.resizable().scaledToFill().ignoresSafeArea()
-                } placeholder: {
-                    Color.black.ignoresSafeArea()
-                }
-                .blur(radius: 60)
-                .overlay(Color.black.opacity(0.55))
-            } else {
-                Color.black.ignoresSafeArea()
-            }
+        let theme = TrackTheme.classify(player.currentTrack?.title)
+        return ZStack {
+            Color.black
+            LinearGradient(colors: theme.colors, startPoint: .top, endPoint: .bottom)
+                .opacity(0.5)
+            LinearGradient(colors: [.clear, .black.opacity(0.6)], startPoint: .center, endPoint: .bottom)
         }
         .ignoresSafeArea()
     }
 
-    private var artwork: some View {
+    private var themePanel: some View {
+        let theme = TrackTheme.classify(player.currentTrack?.title)
         let cover = player.currentTrack?.cover ?? player.current?.img
-        return Group {
-            if let cover, let url = URL(string: cover) {
-                AsyncImage(url: url) { image in
-                    image.resizable().scaledToFill()
-                } placeholder: {
-                    RoundedRectangle(cornerRadius: 28).fill(.quaternary)
-                }
-            } else {
-                RoundedRectangle(cornerRadius: 28)
-                    .fill(.quaternary)
-                    .overlay(Image(systemName: "music.note").font(.largeTitle))
+        return ZStack(alignment: .bottomLeading) {
+            RoundedRectangle(cornerRadius: 28)
+                .fill(LinearGradient(colors: theme.colors, startPoint: .topLeading, endPoint: .bottomTrailing))
+            ThemePattern(symbol: theme.symbol)
+                .clipShape(RoundedRectangle(cornerRadius: 28))
+            // 分类标签
+            HStack(spacing: 6) {
+                Image(systemName: theme.symbol).font(.footnote)
+                Text(theme.label).font(.footnote.weight(.medium))
             }
+            .foregroundStyle(.white.opacity(0.92))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(.white.opacity(0.16), in: .capsule)
+            .padding(16)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            // 缩小的封面图：不再强调，收进主题面板左下角
+            smallCover(url: cover.flatMap(URL.init(string:)))
         }
         .frame(maxWidth: 320)
         .aspectRatio(1, contentMode: .fit)
         .clipShape(RoundedRectangle(cornerRadius: 28))
         .overlay {
-            // 待播放资源加载中：封面压暗 + 转圈。
             if player.isLoading {
                 RoundedRectangle(cornerRadius: 28)
                     .fill(.black.opacity(0.4))
                     .overlay(ProgressView().controlSize(.large).tint(.white))
             }
         }
-        .shadow(color: .black.opacity(0.4), radius: 24, y: 12)
+        .shadow(color: theme.colors[0].opacity(0.45), radius: 24, y: 12)
         .padding(.horizontal, 28)
-        .padding(.top, 28)
+        .padding(.top, 24)
+    }
+
+    private func smallCover(url: URL?) -> some View {
+        Group {
+            if let url {
+                AsyncImage(url: url) { image in
+                    image.resizable().scaledToFill()
+                } placeholder: {
+                    RoundedRectangle(cornerRadius: 20).fill(.quaternary)
+                }
+            } else {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(.quaternary)
+                    .overlay(Image(systemName: "music.note").font(.title3))
+            }
+        }
+        .frame(width: 92, height: 92)
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(.white.opacity(0.18)))
+        .shadow(color: .black.opacity(0.35), radius: 10, y: 5)
+        .padding(16)
     }
 
     private var info: some View {
@@ -248,5 +268,114 @@ struct QueueSheet: View {
             .navigationTitle("播放队列")
             .navigationBarTitleDisplayMode(.inline)
         }
+    }
+}
+
+// MARK: - 曲目分类主题
+
+/// 从曲目标题关键词判别类别（站点标题自带风格标签，如「全国语 Electro 音乐…串烧」），
+/// 每类提供主题色渐变 + 花纹符号，替代大封面的视觉主体。
+enum TrackTheme {
+    case medley      // 串烧
+    case electro     // Electro
+    case funkyHouse  // FunkyHouse
+    case car         // 车载
+    case ktv
+    case slowRock    // 慢摇
+    case dubstep
+    case douyin      // 抖音热歌
+    case generic
+
+    static func classify(_ title: String?) -> TrackTheme {
+        guard let title, !title.isEmpty else { return .generic }
+        // 场景标签比风格标签更具体，优先匹配
+        if title.contains("车载") { return .car }
+        if title.contains("KTV") || title.contains("ktv") { return .ktv }
+        if title.contains("Dubstep") || title.contains("dubstep") { return .dubstep }
+        if title.contains("FunkyHouse") || title.contains("Funky") { return .funkyHouse }
+        if title.contains("Electro") || title.contains("electro") { return .electro }
+        if title.contains("慢摇") { return .slowRock }
+        if title.contains("抖音") { return .douyin }
+        if title.contains("串烧") { return .medley }
+        return .generic
+    }
+
+    var label: String {
+        switch self {
+        case .medley: return "DJ 串烧"
+        case .electro: return "Electro 舞曲"
+        case .funkyHouse: return "FunkyHouse"
+        case .car: return "车载专用"
+        case .ktv: return "KTV 精选"
+        case .slowRock: return "慢摇"
+        case .dubstep: return "Dubstep"
+        case .douyin: return "抖音热歌"
+        case .generic: return "DJ 呦呦"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .medley: return "music.note.list"
+        case .electro: return "bolt.fill"
+        case .funkyHouse: return "house.fill"
+        case .car: return "car.fill"
+        case .ktv: return "mic.fill"
+        case .slowRock: return "waveform"
+        case .dubstep: return "waveform.path"
+        case .douyin: return "music.note"
+        case .generic: return "music.note"
+        }
+    }
+
+    var colors: [Color] {
+        switch self {
+        case .medley: return [Color(hex: 0xE34A85), Color(hex: 0x6E2B77)]
+        case .electro: return [Color(hex: 0x2FA7E8), Color(hex: 0x2547B8)]
+        case .funkyHouse: return [Color(hex: 0xF2A93B), Color(hex: 0xC25517)]
+        case .car: return [Color(hex: 0xE4484F), Color(hex: 0x7C1D2B)]
+        case .ktv: return [Color(hex: 0x9B64F2), Color(hex: 0x4B2492)]
+        case .slowRock: return [Color(hex: 0x27B8A4), Color(hex: 0x0E6E63)]
+        case .dubstep: return [Color(hex: 0x93C83D), Color(hex: 0x3E641C)]
+        case .douyin: return [Color(hex: 0x25C4D8), Color(hex: 0xC22B4B)]
+        case .generic: return [Color(hex: 0x5C6B84), Color(hex: 0x232B3A)]
+        }
+    }
+}
+
+private struct ThemePattern: View {
+    let symbol: String
+
+    var body: some View {
+        Canvas { context, size in
+            let spacing: CGFloat = 66
+            var y: CGFloat = -spacing
+            var row = 0
+            while y < size.height + spacing {
+                var x: CGFloat = row.isMultiple(of: 2) ? 0 : -spacing / 2
+                while x < size.width + spacing {
+                    context.draw(
+                        Text(Image(systemName: symbol))
+                            .font(.system(size: 32, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.09)),
+                        at: CGPoint(x: x, y: y))
+                    x += spacing
+                }
+                y += spacing * 0.78
+                row += 1
+            }
+        }
+        .rotationEffect(.degrees(-10))
+        .scaleEffect(1.3)
+        .allowsHitTesting(false)
+    }
+}
+
+private extension Color {
+    init(hex: UInt32) {
+        self.init(
+            red: Double((hex >> 16) & 0xFF) / 255,
+            green: Double((hex >> 8) & 0xFF) / 255,
+            blue: Double(hex & 0xFF) / 255)
     }
 }
