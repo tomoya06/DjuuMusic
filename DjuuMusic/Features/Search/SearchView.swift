@@ -90,6 +90,8 @@ struct SearchView: View {
             ForEach([(1, "最新"), (2, "最热")], id: \.0) { value, name in
                 Button(name) { sort = value }
                     .font(.footnote.weight(sort == value ? .semibold : .regular))
+                    // 选中态玻璃底是强调色，文字须手动切白，否则粉底粉字（同首页 chip）
+                    .foregroundStyle(sort == value ? Color.white : .primary)
                     .padding(.horizontal, 13)
                     .padding(.vertical, 7)
                     .glassEffect(sort == value
