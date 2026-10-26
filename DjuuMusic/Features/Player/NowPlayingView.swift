@@ -220,31 +220,41 @@ struct QueueSheet: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(Array(player.queue.enumerated()), id: \.element.id) { index, track in
-                    Button {
-                        player.play(track, in: player.queue)
-                    } label: {
-                        HStack {
-                            Text("\(index + 1)")
-                                .font(.caption.monospacedDigit())
-                                .foregroundStyle(.secondary)
-                                .frame(width: 30, alignment: .leading)
-                            Text(track.title)
-                                .font(.subheadline)
-                                .lineLimit(1)
-                                .foregroundStyle(index == player.currentIndex ? Color.accentColor : .primary)
-                            Spacer()
-                            if index == player.currentIndex {
-                                Image(systemName: "waveform")
-                                    .foregroundStyle(Color.accentColor)
+            ScrollViewReader { proxy in
+                List {
+                    ForEach(Array(player.queue.enumerated()), id: \.element.id) { index, track in
+                        Button {
+                            player.play(track, in: player.queue)
+                        } label: {
+                            HStack {
+                                Text("\(index + 1)")
+                                    .font(.caption.monospacedDigit())
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 30, alignment: .leading)
+                                Text(track.title)
+                                    .font(.subheadline)
+                                    .lineLimit(1)
+                                    .foregroundStyle(index == player.currentIndex ? Color.accentColor : .primary)
+                                Spacer()
+                                if index == player.currentIndex {
+                                    Image(systemName: "waveform")
+                                        .foregroundStyle(Color.accentColor)
+                                }
                             }
                         }
+                        .id(track.id)
+                    }
+                }
+                .navigationTitle("播放队列")
+                .navigationBarTitleDisplayMode(.inline)
+                .task {
+                    // 打开抽屉时定位到当前播放曲目；稍候一拍等 List 完成首次布局。
+                    if let id = player.currentTrack?.id {
+                        try? await Task.sleep(for: .seconds(0.1))
+                        proxy.scrollTo(id, anchor: .center)
                     }
                 }
             }
-            .navigationTitle("播放队列")
-            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
