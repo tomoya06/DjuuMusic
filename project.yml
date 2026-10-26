@@ -27,7 +27,7 @@ targets:
     info:
       path: DjuuMusic/Info.plist
       properties:
-        CFBundleDisplayName: DJ呦呦
+        CFBundleDisplayName: UU Box
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen: {}
