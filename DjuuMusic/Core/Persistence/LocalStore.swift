@@ -74,6 +74,32 @@ enum LocalStore {
 
     static var isLoggedIn: Bool { profile != nil }
 
+    /// 复刻 H5 鉴权：登录响应的 token 要写成 host-only cookie（m.djuu.com，30 天），
+    /// /user/collect 等接口校验的是它而非服务端 PHPSESSID。
+    /// 登录后与每次启动时调用；HTTPCookieStorage 可能被系统清理，从 profile 恢复。
+    static func syncAuthCookie() {
+        guard let token = profile?.token, !token.isEmpty else { return }
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-_.!~*'()")
+        let value = token.addingPercentEncoding(withAllowedCharacters: allowed) ?? token
+        let storage = HTTPCookieStorage.shared
+        if let cookies = storage.cookies(for: DjuuClient.baseURL),
+           cookies.contains(where: { $0.name == "token" && $0.value == value }) {
+            return
+        }
+        storage.cookies(for: DjuuClient.baseURL)?
+            .filter { $0.name == "token" }
+            .forEach(storage.deleteCookie)
+        guard let cookie = HTTPCookie(properties: [
+            .domain: DjuuClient.baseURL.host ?? "m.djuu.com",
+            .path: "/",
+            .name: "token",
+            .value: value,
+            .expires: Date().addingTimeInterval(30 * 24 * 3600),
+        ]) else { return }
+        storage.setCookie(cookie)
+    }
+
     static func logout() {
         profile = nil
         if let cookies = HTTPCookieStorage.shared.cookies(for: DjuuClient.baseURL) {

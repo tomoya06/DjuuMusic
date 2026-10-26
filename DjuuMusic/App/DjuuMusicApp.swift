@@ -4,6 +4,10 @@ import SwiftUI
 struct DjuuMusicApp: App {
     @State private var player = PlayerModel.shared
 
+    init() {
+        LocalStore.syncAuthCookie()
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView()

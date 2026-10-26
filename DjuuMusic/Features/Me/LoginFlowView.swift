@@ -198,6 +198,7 @@ struct LoginFlowView: View {
         do {
             let profile = try await DjuuAPI.login(mobile: mobile, smsCode: smsCode)
             LocalStore.profile = profile
+            LocalStore.syncAuthCookie()
             onSuccess()
             dismiss()
         } catch {

@@ -51,17 +51,20 @@ struct UserProfile: Codable, Equatable {
     var username: String
     var avatar: String?
     var isVIP: Bool
+    // H5 用它写 30 天 token cookie 鉴权 /user API（PHPSESSID 不够）
+    var token: String?
 
     enum CodingKeys: String, CodingKey {
-        case uid, username, avatar
+        case uid, username, avatar, token
         case isVIP = "is_vip"
     }
 
-    init(uid: String, username: String, avatar: String?, isVIP: Bool) {
+    init(uid: String, username: String, avatar: String?, isVIP: Bool, token: String? = nil) {
         self.uid = uid
         self.username = username
         self.avatar = avatar
         self.isVIP = isVIP
+        self.token = token
     }
 
     init(from decoder: Decoder) throws {
@@ -80,6 +83,7 @@ struct UserProfile: Codable, Equatable {
         } else {
             isVIP = false
         }
+        token = try? c.decode(String.self, forKey: .token)
     }
 }
 
