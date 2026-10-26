@@ -15,14 +15,6 @@ struct TrackRow: View {
                         .font(.callout.monospacedDigit())
                         .foregroundStyle(isCurrent ? Color.accentColor : .secondary)
                         .frame(width: 26)
-                } else if let cover = track.cover, let url = URL(string: cover) {
-                    AsyncImage(url: url) { image in
-                        image.resizable().scaledToFill()
-                    } placeholder: {
-                        Rectangle().fill(.quaternary)
-                    }
-                    .frame(width: 38, height: 38)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
