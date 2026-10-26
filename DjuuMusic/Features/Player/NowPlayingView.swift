@@ -13,8 +13,9 @@ struct NowPlayingView: View {
             themePanel
             info
             progress
+            // 音控行贴近拇指热区：下对齐 + 与进度条保持呼吸间距。
+            Spacer(minLength: 16)
             controls
-            Spacer(minLength: 0)
         }
         // 背景必须用 background 修饰符挂载：scaledToFill 的封面图会返回超出屏幕的
         // 布局尺寸，若作为 ZStack 子视图会把整个 ZStack 撑大（如 778pt 宽），
@@ -45,13 +46,12 @@ struct NowPlayingView: View {
 
     private var themePanel: some View {
         let theme = TrackTheme.classify(player.currentTrack?.title)
-        let cover = player.currentTrack?.cover ?? player.current?.img
-        return ZStack(alignment: .bottomLeading) {
+        return ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 28)
                 .fill(LinearGradient(colors: theme.colors, startPoint: .topLeading, endPoint: .bottomTrailing))
             ThemePattern(symbol: theme.symbol)
                 .clipShape(RoundedRectangle(cornerRadius: 28))
-            // 分类标签
+            // 分类标签（站点无作者头像数据，面板不再放任何图片）
             HStack(spacing: 6) {
                 Image(systemName: theme.symbol).font(.footnote)
                 Text(theme.label).font(.footnote.weight(.medium))
@@ -61,9 +61,6 @@ struct NowPlayingView: View {
             .padding(.vertical, 7)
             .background(.white.opacity(0.16), in: .capsule)
             .padding(16)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            // 缩小的封面图：不再强调，收进主题面板左下角
-            smallCover(url: cover.flatMap(URL.init(string:)))
         }
         .frame(maxWidth: 320)
         .aspectRatio(1, contentMode: .fit)
@@ -78,27 +75,6 @@ struct NowPlayingView: View {
         .shadow(color: theme.colors[0].opacity(0.45), radius: 24, y: 12)
         .padding(.horizontal, 28)
         .padding(.top, 24)
-    }
-
-    private func smallCover(url: URL?) -> some View {
-        Group {
-            if let url {
-                AsyncImage(url: url) { image in
-                    image.resizable().scaledToFill()
-                } placeholder: {
-                    RoundedRectangle(cornerRadius: 20).fill(.quaternary)
-                }
-            } else {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(.quaternary)
-                    .overlay(Image(systemName: "music.note").font(.title3))
-            }
-        }
-        .frame(width: 92, height: 92)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(.white.opacity(0.18)))
-        .shadow(color: .black.opacity(0.35), radius: 10, y: 5)
-        .padding(16)
     }
 
     private var info: some View {
@@ -167,9 +143,11 @@ struct NowPlayingView: View {
                 } label: {
                     Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
                         .font(.title.bold())
+                        .foregroundStyle(.white)
                         .frame(width: 76, height: 76)
                 }
-                .buttonStyle(.glassProminent)
+                // 不能再叠 buttonStyle(.glassProminent)：它自带胶囊底，与外层
+                // glassEffect 的圆嵌套后常态呈扁椭圆（嵌套玻璃叠影同源问题）。
                 .glassEffect(.regular.tint(.accentColor).interactive(), in: .circle)
 
                 Button {
@@ -194,7 +172,7 @@ struct NowPlayingView: View {
                 .opacity(player.currentTrack == nil ? 0.4 : 1)
             }
         }
-        .padding(.top, 24)
+        .padding(.bottom, 24)
     }
 
     private func timeString(_ seconds: Double) -> String {
@@ -343,12 +321,14 @@ enum TrackTheme {
     }
 }
 
-private struct ThemePattern: View {
-    let symbol: String
+struct ThemePattern: View {
+    var symbol: String
+    var symbolSize: CGFloat = 32
+    var opacity: Double = 0.09
 
     var body: some View {
+        let spacing = symbolSize * 2.06
         Canvas { context, size in
-            let spacing: CGFloat = 66
             var y: CGFloat = -spacing
             var row = 0
             while y < size.height + spacing {
@@ -356,8 +336,8 @@ private struct ThemePattern: View {
                 while x < size.width + spacing {
                     context.draw(
                         Text(Image(systemName: symbol))
-                            .font(.system(size: 32, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.09)),
+                            .font(.system(size: symbolSize, weight: .semibold))
+                            .foregroundColor(.white.opacity(opacity)),
                         at: CGPoint(x: x, y: y))
                     x += spacing
                 }

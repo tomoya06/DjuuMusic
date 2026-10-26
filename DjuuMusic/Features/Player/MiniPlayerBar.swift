@@ -78,35 +78,21 @@ struct MiniPlayerBar: View {
 
     @ViewBuilder
     private var artwork: some View {
-        let cover = player.currentTrack?.cover ?? player.current?.img
-        if let cover, let url = URL(string: cover) {
-            AsyncImage(url: url) { image in
-                image.resizable().scaledToFill()
-            } placeholder: {
-                Circle().fill(.quaternary)
+        let theme = TrackTheme.classify(player.currentTrack?.title)
+        ZStack {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(LinearGradient(colors: theme.colors, startPoint: .topLeading, endPoint: .bottomTrailing))
+            ThemePattern(symbol: theme.symbol, symbolSize: 18, opacity: 0.28)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .frame(width: 46, height: 46)
+        .overlay {
+            // 待播放资源加载中：压暗 + 转圈。
+            if player.isLoading {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.black.opacity(0.45))
+                    .overlay(ProgressView().tint(.white))
             }
-            .frame(width: 46, height: 46)
-            .clipShape(Circle())
-            .overlay {
-                // 待播放资源加载中：封面压暗 + 转圈。
-                if player.isLoading {
-                    Circle()
-                        .fill(.black.opacity(0.45))
-                        .overlay(ProgressView().tint(.white))
-                }
-            }
-        } else {
-            Image(systemName: "music.note")
-                .font(.title3)
-                .frame(width: 46, height: 46)
-                .background(.quaternary, in: Circle())
-                .overlay {
-                    if player.isLoading {
-                        Circle()
-                            .fill(.black.opacity(0.45))
-                            .overlay(ProgressView().tint(.white))
-                    }
-                }
         }
     }
 }
