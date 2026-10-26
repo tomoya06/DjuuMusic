@@ -16,6 +16,7 @@ struct SearchView: View {
     @State private var hasMore = false
     @State private var isLoading = false
     @State private var loadError: String?
+    @State private var listPosition = ScrollPosition()
     @FocusState private var fieldFocused: Bool
 
     private var categories: [(Int, String)] {
@@ -149,6 +150,7 @@ struct SearchView: View {
                 .padding(.horizontal, 12)
             }
             .refreshable { await reload() }
+            .scrollPosition($listPosition)
         }
     }
 
@@ -166,6 +168,7 @@ struct SearchView: View {
             let result = try await DjuuAPI.search(keyword: query, cid: cid, sort: sort, page: 1)
             tracks = result.tracks
             hasMore = result.hasMore
+            listPosition.scrollTo(edge: .top)
         } catch {
             loadError = error.localizedDescription
             tracks = []

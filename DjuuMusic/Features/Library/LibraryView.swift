@@ -14,6 +14,7 @@ struct LibraryView: View {
     @State private var hasMore = false
     @State private var isLoading = false
     @State private var loadError: String?
+    @State private var listPosition = ScrollPosition()
 
     private let sorts: [(Int, String)] = [
         (1, "最新上传"), (2, "精品推荐"), (3, "本周热播"), (4, "上周热播"),
@@ -156,6 +157,7 @@ struct LibraryView: View {
                 .padding(.bottom, 16)
             }
             .refreshable { await reload() }
+            .scrollPosition($listPosition)
         }
     }
 
@@ -191,6 +193,7 @@ struct LibraryView: View {
             let result = try await DjuuAPI.djlist(cid: cid, month: year, sort: sort, page: 1)
             tracks = result.tracks
             hasMore = result.hasMore
+            listPosition.scrollTo(edge: .top)
         } catch {
             loadError = error.localizedDescription
             tracks = []
