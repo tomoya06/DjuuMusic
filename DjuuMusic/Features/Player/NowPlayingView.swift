@@ -197,7 +197,7 @@ private struct NowPlayingHeader: View {
             circleButton("list.bullet") { showQueue = true }
         }
         .padding(.horizontal, 20)
-        .padding(.top, 8)
+        .padding(.top, 20)
     }
 
     private func circleButton(_ systemName: String, bold: Bool = false,
