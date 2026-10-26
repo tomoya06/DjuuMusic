@@ -1,5 +1,6 @@
 import AVFoundation
 import MediaPlayer
+import SwiftUI
 import UIKit
 
 /// 与站点一致的播放模式：1 列表循环 / 2 随机 / 3 单曲循环。
@@ -338,43 +339,26 @@ final class PlayerModel {
         info[MPMediaItemPropertyPlaybackDuration] = duration
         info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = elapsed
         info[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? player.rate : 0
+        // 锁屏/控制中心/灵动岛共用此 artwork：主题渐变+花纹，与 app 内去封面改版一致。
+        if let artwork = themedArtwork(for: TrackTheme.classify(currentTrack?.title)) {
+            info[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: artwork.size) { _ in artwork }
+        }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
-
-        guard let coverURL = currentTrack?.cover ?? current?.img else { return }
-        loadArtwork(urlString: coverURL) { image in
-            guard let image else { return }
-            var updated = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [:]
-            updated[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = updated
-        }
     }
 
-    func cachedArtwork(for urlString: String?) -> UIImage? {
-        guard let urlString else { return nil }
-        return artworkCache.object(forKey: urlString as NSString)
-    }
-
-    func loadArtwork(urlString: String, completion: @escaping (UIImage?) -> Void) {
-        if let cached = artworkCache.object(forKey: urlString as NSString) {
-            completion(cached)
-            return
+    /// 渲染主题徽章图（与 minibar 同款视觉），按主题缓存，避免 elapsed 刷新时重复渲染。
+    private func themedArtwork(for theme: TrackTheme) -> UIImage? {
+        let key = "theme-\(theme.label)" as NSString
+        if let cached = artworkCache.object(forKey: key) { return cached }
+        let view = ZStack {
+            LinearGradient(colors: theme.colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+            ThemePattern(symbol: theme.symbol, symbolSize: 64, opacity: 0.14)
         }
-        guard let url = URL(string: urlString) else {
-            completion(nil)
-            return
-        }
-        Task {
-            do {
-                let data = try await DjuuClient.shared.download(url)
-                guard let image = UIImage(data: data) else {
-                    completion(nil)
-                    return
-                }
-                self.artworkCache.setObject(image, forKey: urlString as NSString)
-                completion(image)
-            } catch {
-                completion(nil)
-            }
-        }
+        .frame(width: 600, height: 600)
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = 1
+        guard let image = renderer.uiImage else { return nil }
+        artworkCache.setObject(image, forKey: key)
+        return image
     }
 }
