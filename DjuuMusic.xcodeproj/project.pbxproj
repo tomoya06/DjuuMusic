@@ -24,6 +24,7 @@
 		BAB2603D5161530D7FC65607 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3493747DC8FB04BCF4240A0 /* SearchView.swift */; };
 		BAD19A830A61BD8F390D01C0 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A49D745CD396FCDE7898B1E /* HomeView.swift */; };
 		BE6D007DFE4AB4A4C8890B8D /* PlayerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771ADB060F0F9060F26908EA /* PlayerModel.swift */; };
+		DA08506F69AC390B1DC1DEF6 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9205870F98B8765E46BD9CB5 /* HistoryView.swift */; };
 		E3D6C36F7F2FE24D58739219 /* TrackRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3232421C0C37722F026F8103 /* TrackRow.swift */; };
 		E89BD1BAB6569F599A532A16 /* LoginFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BEA0AD6CEAB1F9F79F9EC34 /* LoginFlowView.swift */; };
 		F708D27231BF51E3738B45E1 /* DjuuHTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFA66AC2566F0E8259273C2 /* DjuuHTMLParser.swift */; };
@@ -43,6 +44,7 @@
 		70A747EEB853E2FC3091D289 /* CarPlaySceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarPlaySceneDelegate.swift; sourceTree = "<group>"; };
 		771ADB060F0F9060F26908EA /* PlayerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerModel.swift; sourceTree = "<group>"; };
 		831C07EEA0F64A50CF17A574 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		9205870F98B8765E46BD9CB5 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		9A42F8E5BCB62165BFB71F40 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		B4BFBAECFFFA85D1990C953B /* DjuuClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DjuuClient.swift; sourceTree = "<group>"; };
 		B82D8464CB11CAE2E2ED84FF /* DjuuMusic.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DjuuMusic.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -93,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				F9F2E24AD8F076F7D01FFD3D /* Collect.swift */,
+				9205870F98B8765E46BD9CB5 /* HistoryView.swift */,
 				6BEA0AD6CEAB1F9F79F9EC34 /* LoginFlowView.swift */,
 				DA2FCA780F49D555B10170A9 /* MeView.swift */,
 				BD7426B1AC5605C324536F88 /* SliderCaptchaView.swift */,
@@ -286,6 +289,7 @@
 				F708D27231BF51E3738B45E1 /* DjuuHTMLParser.swift in Sources */,
 				26E4D273D65A83EA3E94D190 /* DjuuModels.swift in Sources */,
 				B34F7C75AFF32AAA109D0017 /* DjuuMusicApp.swift in Sources */,
+				DA08506F69AC390B1DC1DEF6 /* HistoryView.swift in Sources */,
 				BAD19A830A61BD8F390D01C0 /* HomeView.swift in Sources */,
 				5A281CBD6E8E2A0313D095B5 /* LibraryView.swift in Sources */,
 				23146047468CC0ACEF90A663 /* LocalStore.swift in Sources */,

@@ -11,41 +11,45 @@ struct MeView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                if let profile {
-                    profileSection(profile)
-                    collectSection
-                    historySection
-                    Button(role: .destructive) {
-                        confirmLogout = true
-                    } label: {
-                        Text("退出登录")
-                            .frame(maxWidth: .infinity)
-                    }
-                } else {
-                    loginPrompt
+            meList
+        }
+    }
+
+    private var meList: some View {
+        List {
+            if let profile {
+                profileSection(profile)
+                collectSection
+                historySection
+                Button(role: .destructive) {
+                    confirmLogout = true
+                } label: {
+                    Text("退出登录")
+                        .frame(maxWidth: .infinity)
                 }
+            } else {
+                loginPrompt
             }
-            .navigationTitle("我的")
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
+        }
+        .navigationTitle("我的")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            profile = LocalStore.profile
+            history = LocalStore.history
+        }
+        .task { await loadCollectBoxes() }
+        .sheet(isPresented: $showLogin) {
+            LoginFlowView {
                 profile = LocalStore.profile
-                history = LocalStore.history
+                Task { await loadCollectBoxes() }
             }
-            .task { await loadCollectBoxes() }
-            .sheet(isPresented: $showLogin) {
-                LoginFlowView {
-                    profile = LocalStore.profile
-                    Task { await loadCollectBoxes() }
-                }
-            }
-            .confirmationDialog("退出后收藏与服务端会话将失效，确定退出？",
-                                isPresented: $confirmLogout, titleVisibility: .visible) {
-                Button("退出登录", role: .destructive) {
-                    LocalStore.logout()
-                    profile = nil
-                    collectBoxes = []
-                }
+        }
+        .confirmationDialog("退出后收藏与服务端会话将失效，确定退出？",
+                            isPresented: $confirmLogout, titleVisibility: .visible) {
+            Button("退出登录", role: .destructive) {
+                LocalStore.logout()
+                profile = nil
+                collectBoxes = []
             }
         }
     }
@@ -148,6 +152,7 @@ struct MeView: View {
         }
     }
 
+    /// 个人中心只露出最近 5 条，全量列表、滑动删除与清空都在 HistoryView。
     private var historySection: some View {
         Section {
             if history.isEmpty {
@@ -155,7 +160,7 @@ struct MeView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(history) { track in
+                ForEach(history.prefix(5)) { track in
                     TrackRow(index: nil,
                              track: track,
                              isCurrent: player.currentTrack?.id == track.id,
@@ -163,19 +168,16 @@ struct MeView: View {
                              onPlayNext: nil)
                 }
                 .onDelete { offsets in
-                    for offset in offsets {
-                        if history.indices.contains(offset) {
-                            LocalStore.removeHistory(id: history[offset].id)
-                        }
+                    for offset in offsets where history.indices.contains(offset) {
+                        LocalStore.removeHistory(id: history[offset].id)
                     }
                     history = LocalStore.history
                 }
-                Button(role: .destructive) {
-                    LocalStore.clearHistory()
-                    history = []
+                NavigationLink {
+                    HistoryView()
                 } label: {
-                    Text("清空播放历史")
-                        .frame(maxWidth: .infinity)
+                    Label("查看全部播放历史（共 \(history.count) 条）",
+                          systemImage: "clock.arrow.circlepath")
                 }
             }
         } header: {
