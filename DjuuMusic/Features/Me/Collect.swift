@@ -294,10 +294,12 @@ struct CollectPickerSheet: View {
         defer { busyBoxID = nil }
         do {
             toast = try await DjuuAPI.addToCollect(boxID: box.id, musicID: track.id)
+            Haptics.success()
             try? await Task.sleep(for: .seconds(0.8))
             dismiss()
         } catch {
             // 已收藏等情况由服务端返回错误信息，面板保持打开。
+            Haptics.failure()
             toast = error.localizedDescription
         }
     }

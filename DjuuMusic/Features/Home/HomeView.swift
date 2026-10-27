@@ -71,6 +71,7 @@ struct HomeView: View {
                     ForEach(sections) { section in
                         let selected = section.id == selection.wrappedValue
                         Button {
+                            Haptics.selection()
                             withAnimation(.snappy) { selection.wrappedValue = section.id }
                         } label: {
                             Text(section.title)

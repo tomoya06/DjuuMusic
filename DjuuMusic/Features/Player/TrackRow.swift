@@ -8,7 +8,10 @@ struct TrackRow: View {
     var onPlayNext: (() -> Void)?
 
     var body: some View {
-        Button(action: onPlay) {
+        Button {
+            Haptics.tap()
+            onPlay()
+        } label: {
             HStack(spacing: 12) {
                 if let index {
                     Text("\(index)")
@@ -36,7 +39,7 @@ struct TrackRow: View {
             .padding(.vertical, 8)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressFeedbackStyle())
         .contextMenu {
             Button {
                 onPlay()

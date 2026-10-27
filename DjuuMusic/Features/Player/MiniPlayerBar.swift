@@ -30,9 +30,10 @@ struct MiniPlayerBar: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PressFeedbackStyle())
 
             Button {
+                Haptics.tap()
                 player.toggle()
             } label: {
                 Group {
@@ -47,10 +48,11 @@ struct MiniPlayerBar: View {
                 .background(Color.accentColor, in: .circle)
                 .foregroundStyle(.white)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PressFeedbackStyle())
             .disabled(player.isLoading)
 
             Button {
+                Haptics.tap()
                 player.next()
             } label: {
                 Image(systemName: "forward.fill")
@@ -58,7 +60,7 @@ struct MiniPlayerBar: View {
                     .frame(width: 40, height: 40)
                     .background(.quaternary, in: .circle)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PressFeedbackStyle())
         }
         .padding(.leading, 8)
         .padding(.trailing, 6)

@@ -15,6 +15,7 @@
 		38897CC13F41716EF589A52D /* MeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2FCA780F49D555B10170A9 /* MeView.swift */; };
 		582534DD6E609C944B3189B2 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C9B795F60B4AAE911E3D81D /* RootView.swift */; };
 		5A281CBD6E8E2A0313D095B5 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A42F8E5BCB62165BFB71F40 /* LibraryView.swift */; };
+		87E054B8A8EAABFA69D24F76 /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D60960CF20EFBCFBF90AC6B /* Feedback.swift */; };
 		8ED0D3E37B3981E0898BF6D4 /* DjuuAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659BB2111C3B4D0821EB74DF /* DjuuAPI.swift */; };
 		A6A8670DD7370C4B86FD73FC /* SliderCaptchaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7426B1AC5605C324536F88 /* SliderCaptchaView.swift */; };
 		AC356871E491382FE8A3F71E /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36633C5D566EC20365996CD1 /* NowPlayingView.swift */; };
@@ -33,6 +34,7 @@
 
 /* Begin PBXFileReference section */
 		1C9B795F60B4AAE911E3D81D /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		1D60960CF20EFBCFBF90AC6B /* Feedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
 		208D80E495EDFFFA09B0AB57 /* DjuuModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DjuuModels.swift; sourceTree = "<group>"; };
 		3232421C0C37722F026F8103 /* TrackRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackRow.swift; sourceTree = "<group>"; };
 		36633C5D566EC20365996CD1 /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
@@ -77,6 +79,7 @@
 				1DE6A3153A2D4721D5F43F24 /* Networking */,
 				73FE2E83AC84669DEB86AF3D /* Persistence */,
 				7B477C921BF51C93BB2EDBE3 /* Player */,
+				DE59F1F9229430142C646227 /* UI */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -158,6 +161,14 @@
 				F3493747DC8FB04BCF4240A0 /* SearchView.swift */,
 			);
 			path = Search;
+			sourceTree = "<group>";
+		};
+		DE59F1F9229430142C646227 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				1D60960CF20EFBCFBF90AC6B /* Feedback.swift */,
+			);
+			path = UI;
 			sourceTree = "<group>";
 		};
 		E7501E831E72C86642D7A86C = {
@@ -289,6 +300,7 @@
 				F708D27231BF51E3738B45E1 /* DjuuHTMLParser.swift in Sources */,
 				26E4D273D65A83EA3E94D190 /* DjuuModels.swift in Sources */,
 				B34F7C75AFF32AAA109D0017 /* DjuuMusicApp.swift in Sources */,
+				87E054B8A8EAABFA69D24F76 /* Feedback.swift in Sources */,
 				DA08506F69AC390B1DC1DEF6 /* HistoryView.swift in Sources */,
 				BAD19A830A61BD8F390D01C0 /* HomeView.swift in Sources */,
 				5A281CBD6E8E2A0313D095B5 /* LibraryView.swift in Sources */,

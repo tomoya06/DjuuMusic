@@ -74,7 +74,7 @@ struct MeView: View {
                             } label: {
                                 boxCard(icon: "folder.fill", title: box.title)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(PressFeedbackStyle())
                         }
                         NavigationLink {
                             FavoritesView()

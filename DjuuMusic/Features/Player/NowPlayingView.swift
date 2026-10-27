@@ -121,6 +121,7 @@ struct NowPlayingView: View {
         GlassEffectContainer(spacing: 16) {
             HStack(spacing: 16) {
                 Button {
+                    Haptics.selection()
                     player.cycleMode()
                 } label: {
                     Image(systemName: player.mode.iconName)
@@ -130,6 +131,7 @@ struct NowPlayingView: View {
                 .glassEffect(.regular.interactive(), in: .circle)
 
                 Button {
+                    Haptics.tap()
                     player.previous()
                 } label: {
                     Image(systemName: "backward.fill")
@@ -139,6 +141,7 @@ struct NowPlayingView: View {
                 .glassEffect(.regular.interactive(), in: .circle)
 
                 Button {
+                    Haptics.tap()
                     player.toggle()
                 } label: {
                     Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
@@ -151,6 +154,7 @@ struct NowPlayingView: View {
                 .glassEffect(.regular.tint(.accentColor).interactive(), in: .circle)
 
                 Button {
+                    Haptics.tap()
                     player.next()
                 } label: {
                     Image(systemName: "forward.fill")
@@ -210,7 +214,7 @@ private struct NowPlayingHeader: View {
                 .background(.thinMaterial, in: Circle())
                 .overlay(Circle().strokeBorder(.white.opacity(0.14)))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressFeedbackStyle())
     }
 }
 
@@ -224,6 +228,7 @@ struct QueueSheet: View {
                 List {
                     ForEach(Array(player.queue.enumerated()), id: \.element.id) { index, track in
                         Button {
+                            Haptics.tap()
                             player.play(track, in: player.queue)
                         } label: {
                             HStack {

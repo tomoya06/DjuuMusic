@@ -101,6 +101,7 @@ struct LibraryView: View {
                     ForEach(items, id: \.0) { id, name in
                         let selected = id == selectedID
                         Button {
+                            Haptics.selection()
                             onTap(id)
                         } label: {
                             Text(name)
